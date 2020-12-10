@@ -18,7 +18,7 @@ In the table below you can see the demo image which has been drawn with 10000 li
 
 ## Options
 
-<table style="boarder=None">
+<table>
     <tr>
         <td>--input-path</td>
         <td>Input image path.</td>
@@ -89,7 +89,7 @@ bash test.sh
 ```
 
 ## Credits
-- https://www.reddit.com/r/Art/comments/454joy/drawing_experiment_every_line_goes_through_the/ -> Manual Line Art
-- http://linify.me/about - > Javascript implementation
-- https://github.com/nathanbain314/lineDrawer --> C++ implementation
+- Basic idea (https://www.reddit.com/r/Art/comments/454joy/drawing_experiment_every_line_goes_through_the/)
+- Javascript implementation (http://linify.me/about)
+- C++ implementation (https://github.com/nathanbain314/lineDrawer)
 - Image from Mani Matter (Source: LP Album Cover - Mani Matter - I Han Es Zündhölzli Azündt - zytglogge Verlag)
