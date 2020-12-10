@@ -29,7 +29,7 @@ In the table below you can see the demo image which has been drawn with 10000 li
     </tr>
     <tr>
         <td>--num-lines</td>
-        <td>Number of lines to lines.</td>
+        <td>Number of lines to draw.</td>
     </tr>
     <tr>
         <td>--line-heaviness</td>
@@ -37,7 +37,7 @@ In the table below you can see the demo image which has been drawn with 10000 li
     </tr>
     <tr>
         <td>--num-lines-to-check</td>
-        <td>Number of lines to lines to check at each iteration.</td>
+        <td>Number of lines to check at each iteration.</td>
     </tr>
     <tr>
         <td>--draw-type</td>

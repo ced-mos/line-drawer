@@ -254,13 +254,13 @@ if __name__ == "__main__":
     parser.add_argument('--input-path', type=str,
                         default='./example/mani_matter.png', help='Input image path.')
     parser.add_argument('--output-path', type=str,
-                        default='./example/output.png', help='Input image path.')
+                        default='./output.png', help='Output image path.')
     parser.add_argument('--num-lines', type=int, default=10000,
-                        help='Number of lines to lines.')
+                        help='Number of lines to draw.')
     parser.add_argument('--line-heaviness', type=int, default=10,
                         help='Line heaviness. Integer from 1 to 255, with 255 being completely heavy.')
     parser.add_argument('--num-lines-to-check', type=int, default=10,
-                        help='Number of lines to lines to check at each iteration.')
+                        help='Number of lines to check at each iteration.')
     parser.add_argument('--draw-type', type=str, default='subtractive',
                         help='Draw types (subtractive/additive). Subtractive means white background with black lines. Additive means black background with with lines.')
     parser.add_argument('--no-random-result', action='store_true',
