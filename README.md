@@ -1,7 +1,7 @@
 # line-drawer
  
-LineDraw recreates a given image by only drawing it by simple straight lines.
-In the table below you can see the demo image which has been drawn with 10000 lines within 40 seconds, once in the subractive mode and once in the additive mode.
+line-drawer recreats a given image by only drawing it with simple straight lines.
+In the table below you can see the demo image which has been drawn with 10000 lines within 40 seconds, once in the subtractive mode and once in the additive mode.
 
 <table>
   <tr>
