@@ -1,32 +1,74 @@
-# LineDrawer
+# line-drawer
  
 LineDraw recreates a given image by only drawing it by simple straight lines.
+In the table below you can see the demo image which has been drawn with 10000 lines within 40 seconds, once in the subractive mode and once in the additive mode.
+
+<table>
+  <tr>
+    <th><img src="https://github.com/ced-mos/line-drawer/raw/main/example/mani_matter.png" width="200" /></th>
+    <th><img src="https://github.com/ced-mos/line-drawer/raw/main/img/mani_matter_subtractive.png" width="200" /></th>
+    <th><img src="https://github.com/ced-mos/line-drawer/raw/main/img/mani_matter_additive.png" width="200" /></th>
+  </tr>
+  <tr>
+    <td style="text-align: center">original image</td>
+    <td style="text-align: center">subtractive mode</td>
+    <td style="text-align: center">additive mode</td>
+  </tr>
+</table>
 
 ## Options
---input-path          Input image path.
---output-path         Input image path.
---num-lines           Number of lines to lines.
---line-heaviness      Line heaviness. Integer from 1 to 255, with 255 being completely heavy.
---num-lines-to-check  Number of lines to lines to check at each iteration.
---draw-type           Draw types (subtractive/additive). Subtractive means white background with black lines. Additive means black background with with lines.
---no-random-result    Will return always the same output with the same config if set.
---output-width        Output image width in pixels where higth will be adapted. Smaller width reduses computation time. "-1" will not change the size.
+
+<table style="boarder=None">
+    <tr>
+        <td>--input-path</td>
+        <td>Input image path.</td>
+    </tr>
+    <tr>
+        <td>--output-path</td>
+        <td>Output image path.</td>
+    </tr>
+    <tr>
+        <td>--num-lines</td>
+        <td>Number of lines to lines.</td>
+    </tr>
+    <tr>
+        <td>--line-heaviness</td>
+        <td>Line heaviness. Integer from 1 to 255, with 255 being completely heavy.</td>
+    </tr>
+    <tr>
+        <td>--num-lines-to-check</td>
+        <td>Number of lines to lines to check at each iteration.</td>
+    </tr>
+    <tr>
+        <td>--draw-type</td>
+        <td>Draw types (subtractive/additive). Subtractive means white background with black lines. Additive means black background with with lines.</td>
+    </tr>
+    <tr>
+        <td>--no-random-result</td>
+        <td>Will return always the same output with the same config if set.</td>
+    </tr>
+    <tr>
+        <td>--output-width</td>
+        <td>Output image width in pixels where hight will be adapted. Smaller width reduses computation time. "-1" will not change the size.</td>
+    </tr>
+</table>
 
 ## Algorithm
 The LineDrawer is based on greedy algorithms where for a defined number of lines the best line positions are searched, to mimic the original images as good as possible.
 The algorithm works as follows:
 
-for num-lines time
+```
+For num-lines times
     Search darkest pixel in image
     Select randomly one of the darkest pixels
 
-    for num-lines-to-check
-        get random line through previously selected pixel
+    For num-lines-to-check times
+        Get random line through previously selected pixel
     Select best fitting and save it to list
 
-for every selected line
-    draw line in output image
-
+For every selected line
+    Draw line in output image
+```
 ## Dependencies
 - python 3
 - see requirements.txt
