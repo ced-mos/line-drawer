@@ -83,13 +83,13 @@ pip3 install -r requirements.txt
 python src/line_drawer.py --input-path ./example/mani_matter --output-path ./out_image.png --num-lines 10000   
 ```
 
-## Unittests
+## Unit tests
 ```
 bash test.sh
 ```
 
 ## Credits
 - Basic idea (https://www.reddit.com/r/Art/comments/454joy/drawing_experiment_every_line_goes_through_the/)
-- Javascript implementation (http://linify.me/about)
+- JavaScript implementation (http://linify.me/about)
 - C++ implementation (https://github.com/nathanbain314/lineDrawer)
-- Image from Mani Matter (Source: LP Album Cover - Mani Matter - I Han Es Zündhölzli Azündt - zytglogge Verlag)
+- Image from Mani Matter (Source: LP Album Cover — Mani Matter — I Han Es Zündhölzli Azündt — zytglogge Verlag)
