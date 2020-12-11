@@ -1,7 +1,7 @@
 # line-drawer
  
-LineDraw recreates a given image by only drawing it by simple straight lines.
-In the table below you can see the demo image which has been drawn with 10000 lines within 40 seconds, once in the subractive mode and once in the additive mode.
+line-drawer recreates a given image by only drawing it by simple straight lines.
+In the table below you can see the demo image which has been drawn with 10000 lines within 40 seconds, once in the subtractive mode and once in the additive mode.
 
 <table>
   <tr>
@@ -54,12 +54,12 @@ In the table below you can see the demo image which has been drawn with 10000 li
 </table>
 
 ## Algorithm
-The LineDrawer is based on greedy algorithms where for a defined number of lines the best line positions are searched, to mimic the original images as good as possible.
+The line-drawer is based on greedy algorithms where for a defined number of lines the best line positions are searched, to mimic the original images as good as possible.
 The algorithm works as follows:
 
 ```
 For num-lines times
-    Search darkest pixel in image
+    Search the darkest pixel in image
     Select randomly one of the darkest pixels
 
     For num-lines-to-check times
