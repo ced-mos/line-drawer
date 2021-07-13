@@ -7,6 +7,8 @@ import numpy as np
 from skimage.draw import line
 from tqdm import tqdm
 
+import drawSvg as draw
+
 from geometry import Point, Line, Rectangle
 
 LOGO = "\n\
@@ -53,6 +55,34 @@ def draw_line_image(lines, image_shape, draw_type, line_heaviness=10):
     output_image = output_image.astype(np.uint8)
     return output_image
 
+def draw_line_svg(lines, width, height, draw_type, stroke_width=1):
+    """Draws line image into numpy array given a list of lines.
+
+    Args:
+        lines (list: List of point pairs
+        width (int): Width of SVG document
+        heigh: (int): Height of SVG document
+        draw_type (DrawType): Enum for draw type
+        stroke_width (int, optional): Stroke width of lines. Defaults to 1.
+
+    Returns:
+        np.array: Output image given as np.array.
+    """
+
+    if draw_type == DrawType.ADDITIVE:
+        stroke_color = 'white'
+    else:
+        stroke_color = 'black'
+
+    d = draw.Drawing(width, height, origin=(0, 0), displayInline=False, stroke=stroke_color, stroke_width=stroke_width,
+            fill='none')
+
+    for line_ in lines:
+        p1, p2 = line_
+
+        d.append(draw.Line(p1.x, p1.y, p2.x, p2.y))
+
+    return d
 
 def compute_image_lines(image, num_lines, num_lines_to_check, draw_type, line_heaviness=10):
     """Computes lines needed to redraw line image.
@@ -231,20 +261,31 @@ def main(args):
         img = img.resize((basewidth, hsize), Image.ANTIALIAS)
 
     # grayscale using CIE luminance (Copied from http://linify.me)
-    img_arr = np.asarray(img, dtype=np.float)
+    img_arr = np.asarray(img, dtype=float)
     img_arr = 0.21 * img_arr[:, :, 0] + 0.72 * \
         img_arr[:, :, 1] + 0.07 * img_arr[:, :, 2]
     img_arr = img_arr.astype(np.int16)
 
     lines = compute_image_lines(
         img_arr, args.num_lines, args.num_lines_to_check, draw_type, args.line_heaviness)
-    output_image_arr = draw_line_image(
-        lines, img_arr.shape, draw_type, args.line_heaviness)
+    
+    if str.upper(args.output_format) == 'SVG':
+        stroke_width = args.line_heaviness * 0.1
 
-    # Write image to output
-    print('Write image to {}'.format(args.output_path))
-    output_image = Image.fromarray(output_image_arr)
-    output_image.save(args.output_path)
+        svg_width = img.width
+        svg_height = img.height
+
+        output_svg = draw_line_svg(
+            lines, svg_width, svg_height, draw_type, stroke_width)
+        print('Write SVG to {}'.format(args.output_path))
+        output_svg.saveSvg(args.output_path)
+    else:
+        output_image_arr = draw_line_image(
+            lines, img_arr.shape, draw_type, args.line_heaviness)
+        # Write image to output
+        print('Write image to {}'.format(args.output_path))
+        output_image = Image.fromarray(output_image_arr)
+        output_image.save(args.output_path)
 
 
 if __name__ == "__main__":
@@ -263,6 +304,8 @@ if __name__ == "__main__":
                         help='Number of lines to check at each iteration.')
     parser.add_argument('--draw-type', type=str, default='subtractive',
                         help='Draw types (subtractive/additive). Subtractive means white background with black lines. Additive means black background with with lines.')
+    parser.add_argument('--output-format', type=str, default='png',
+                        help='Output format (SVG/PNG).')
     parser.add_argument('--no-random-result', action='store_true',
                         help='Will return always the same output with the same config if set.')
     parser.add_argument('--output-width', type=int, default=512,
