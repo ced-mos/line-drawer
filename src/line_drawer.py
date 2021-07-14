@@ -71,16 +71,20 @@ def draw_line_svg(lines, width, height, draw_type, stroke_width=1):
 
     if draw_type == DrawType.ADDITIVE:
         stroke_color = 'white'
+        background = 'black'
     else:
         stroke_color = 'black'
+        background = 'white'
 
-    d = draw.Drawing(width, height, origin=(0, 0), displayInline=False, stroke=stroke_color, stroke_width=stroke_width,
-            fill='none')
+    d = draw.Drawing(width, height, origin=(0, -height), displayInline=False,
+                stroke=stroke_color,
+                stroke_width=stroke_width,
+                fill=background)
 
     for line_ in lines:
         p1, p2 = line_
 
-        d.append(draw.Line(p1.x, p1.y, p2.x, p2.y))
+        d.append(draw.Line(p1.x, p1.y*-1, p2.x, p2.y*-1))
 
     return d
 
@@ -270,7 +274,7 @@ def main(args):
         img_arr, args.num_lines, args.num_lines_to_check, draw_type, args.line_heaviness)
     
     if str.upper(args.output_format) == 'SVG':
-        stroke_width = args.line_heaviness * 0.1
+        stroke_width = args.line_heaviness * 0.01
 
         svg_width = img.width
         svg_height = img.height
