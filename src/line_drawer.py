@@ -236,6 +236,7 @@ def print_input_params(args):
     print("draw_type=: ", args.draw_type)
     print("input_path: ", args.input_path)
     print("output_path: ", args.output_path)
+    print("output_format: ", args.output_format)
     print("num_lines: ", args.num_lines)
     print("num_lines_to_check: ", args.num_lines_to_check)
     print("\n----------------------------------------------\n")
@@ -279,14 +280,13 @@ def main(args):
     lines = compute_image_lines(
         img_arr, args.num_lines, args.num_lines_to_check, draw_type, args.line_heaviness)
     
-    if str.upper(args.output_format) == 'SVG':
-        stroke_width = args.line_heaviness * 0.01
+    if args.output_format == 'SVG':
 
         svg_width = img.width
         svg_height = img.height
 
         output_svg = draw_line_svg(
-            lines, svg_width, svg_height, draw_type, stroke_width)
+            lines, svg_width, svg_height, draw_type, args.stroke_width)
         print('Write SVG to {}'.format(args.output_path))
         output_svg.saveSvg(args.output_path)
     else:
