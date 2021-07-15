@@ -75,17 +75,22 @@ def draw_line_svg(lines, width, height, draw_type, stroke_width=1):
         stroke_color = 'black'
         background = 'white'
 
-    d = draw.Drawing(width, height, origin=(0, -height), displayInline=False,
+    svg_drawing = draw.Drawing(width, height, origin=(0, -height),
+                displayInline=False,
                 stroke=stroke_color,
-                stroke_width=stroke_width,
-                fill=background)
+                stroke_width=stroke_width)
+
+    if draw_type == DrawType.ADDITIVE:
+        svg_drawing.append(draw.Rectangle(0, -height, width, height,
+            stroke='none',
+            fill=background))
 
     for line_ in lines:
         p1, p2 = line_
 
-        d.append(draw.Line(p1.x, p1.y*-1, p2.x, p2.y*-1))
+        svg_drawing.append(draw.Line(p1.x, p1.y*-1, p2.x, p2.y*-1))
 
-    return d
+    return svg_drawing
 
 def compute_image_lines(image, num_lines, num_lines_to_check, draw_type, line_heaviness=10):
     """Computes lines needed to redraw line image.
