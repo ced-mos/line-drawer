@@ -6,7 +6,6 @@ from PIL import Image
 import numpy as np
 from skimage.draw import line
 from tqdm import tqdm
-
 import drawSvg as draw
 
 from geometry import Point, Line, Rectangle
@@ -307,13 +306,15 @@ if __name__ == "__main__":
     parser.add_argument('--num-lines-to-check', type=int, default=10,
                         help='Number of lines to check at each iteration.')
     parser.add_argument('--draw-type', type=str, default='subtractive',
-                        help='Draw types (subtractive/additive). Subtractive means white background with black lines. Additive means black background with with lines.')
-    parser.add_argument('--output-format', type=str, default='png',
-                        help='Output format (SVG/PNG).')
+                        help='Draw types (subtractive/additive). Subtractive means white background with black lines. Additive means black background with white lines.')
     parser.add_argument('--no-random-result', action='store_true',
                         help='Will return always the same output with the same config if set.')
     parser.add_argument('--output-width', type=int, default=512,
                         help='Output image width in pixels where hight will be adapted. Smaller width reduses computation time. "-1" will not change the size.')
+    parser.add_argument('--output-format', type=str.upper, default='PNG', choices=['PNG', 'SVG'],
+                        help='Output image format - SVG or PNG')
+    parser.add_argument('--stroke-width', type=float, default=0.1,
+                        help='SVG stroke width')
 
     args = parser.parse_args()
 
