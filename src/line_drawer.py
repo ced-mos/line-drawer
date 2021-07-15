@@ -54,18 +54,20 @@ def draw_line_image(lines, image_shape, draw_type, line_heaviness=10):
     output_image = output_image.astype(np.uint8)
     return output_image
 
-def draw_line_svg(lines, width, height, draw_type, stroke_width=1):
-    """Draws line image into numpy array given a list of lines.
+def draw_line_svg(lines, width, height, draw_type, stroke_width=0.1):
+    """Draw lines into SVG drawing given a list of lines.
 
-    Args:
-        lines (list: List of point pairs
+    Parameters
+    ----------
+        lines (list): List of point pairs
         width (int): Width of SVG document
-        heigh: (int): Height of SVG document
+        heigh (int): Height of SVG document
         draw_type (DrawType): Enum for draw type
-        stroke_width (int, optional): Stroke width of lines. Defaults to 1.
+        stroke_width (float, optional): Stroke width of lines. Defaults to 0.1
 
-    Returns:
-        np.array: Output image given as np.array.
+    Returns
+    -------
+        svg_drawing: Output SVG as drawSvg Drawing.
     """
 
     if draw_type == DrawType.ADDITIVE:
