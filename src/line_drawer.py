@@ -1,3 +1,7 @@
+"""line-drawer module used to create line art image where a given input image
+is reproduced only by simple straight lines.
+"""
+
 import argparse
 import sys
 from enum import Enum
@@ -10,7 +14,7 @@ import drawsvg as draw
 
 from geometry import Point, Line, Rectangle
 
-LOGO = "\n\
+LOGO = r"\n\
    / /   (_)___  ___  / __ \_________ __      _____  _____\n\
   / /   / / __ \/ _ \/ / / / ___/ __ `/ | /| / / _ \/ ___/\n\
  / /___/ / / / /  __/ /_/ / /  / /_/ /| |/ |/ /  __/ /    \n\
@@ -18,6 +22,11 @@ LOGO = "\n\
 
 
 class DrawType(Enum):
+    """ Draw type. 
+    Additive means white background, where black lines are drawn on top.
+    Subtractive means black background, where white lines are drawn on top.
+    """
+    
     ADDITIVE = 1
     SUBTRACTIVE = 2
 
@@ -33,7 +42,7 @@ def draw_line_image(lines, image_shape, draw_type, line_heaviness=10):
 
     Returns:
         np.array: Output image given as np.array.
-    """    
+    """
 
     if draw_type == DrawType.ADDITIVE:
         fill_value = 0
@@ -44,11 +53,11 @@ def draw_line_image(lines, image_shape, draw_type, line_heaviness=10):
     output_image = np.full(image_shape, fill_value, dtype=np.int16)
 
     for line_ in lines:
-        p1, p2 = line_
+        p_1, p_2 = line_
 
-        yy, xx = line(p1.y, p1.x, p2.y, p2.x)
+        yy_selector, xx_selector = line(p_1.y, p_1.x, p_2.y, p_2.x)
 
-        output_image[yy, xx] -= line_heaviness
+        output_image[yy_selector, xx_selector] -= line_heaviness
 
     output_image = np.clip(output_image, 0, 255)
     output_image = output_image.astype(np.uint8)
@@ -88,9 +97,9 @@ def draw_line_svg(lines, width, height, draw_type, stroke_width=0.1):
             fill=background))
 
     for line_ in lines:
-        p1, p2 = line_
+        p_1, p_2 = line_
 
-        svg_drawing.append(draw.Line(p1.x, p1.y*-1, p2.x, p2.y*-1))
+        svg_drawing.append(draw.Line(p_1.x, p_1.y*-1, p_2.x, p_2.y*-1))
 
     return svg_drawing
 
@@ -106,7 +115,7 @@ def compute_image_lines(image, num_lines, num_lines_to_check, draw_type, line_he
 
     Returns:
         list(): List of point pairs
-    """    
+    """
     list_of_lines = []
     debug_ = False
 
@@ -135,7 +144,7 @@ def compute_image_lines(image, num_lines, num_lines_to_check, draw_type, line_he
             debug_image = None
 
         # Find best fitting line in current test round
-        best_line, best_mean_value = find_best_line_through_point(
+        best_line, _ = find_best_line_through_point(
             num_lines_to_check, selected_point, image, debug_image, draw_type)
 
         if debug_:
@@ -143,19 +152,19 @@ def compute_image_lines(image, num_lines, num_lines_to_check, draw_type, line_he
             debug_image[indexes_y[random_index]-2:indexes_y[random_index]+2,
                         indexes_x[random_index]-2:indexes_x[random_index]+2] = [255, 0, 0]
             output_image = Image.fromarray(debug_image)
-            output_image.save('./debug_output/debug_point_{}.png'.format(i))
+            output_image.save(f'./debug_output/debug_point_{i}.png')
 
             # print current input image state.
             output_image = Image.fromarray(image)
             output_image.save('./debug_output/debug_output.png')
 
         # Accumulate already drawn line to original image.
-        yy, xx = line(best_line[0].y, best_line[0].x,
+        yy_selector, xx_selector = line(best_line[0].y, best_line[0].x,
                       best_line[1].y, best_line[1].x)
         if draw_type == DrawType.ADDITIVE:
-            image[yy, xx] -= line_heaviness
+            image[yy_selector, xx_selector] -= line_heaviness
         else:
-            image[yy, xx] += line_heaviness
+            image[yy_selector, xx_selector] += line_heaviness
 
         list_of_lines.append(best_line)
     return list_of_lines
@@ -173,7 +182,7 @@ def find_best_line_through_point(num_lines_to_check, selected_point, image, debu
 
     Returns:
         (Point,Point): Point pair representing the best line segment.
-    """    
+    """
     if draw_type == DrawType.ADDITIVE:
         best_mean_value = -sys.float_info.max
     else:
@@ -194,80 +203,89 @@ def find_best_line_through_point(num_lines_to_check, selected_point, image, debu
         found_line = image_rectangle.intersection_with_line(line_through_point)
 
         if len(found_line) == 2:
-            (p1, p2) = found_line
+            # pylint: disable=unbalanced-tuple-unpacking
+            (p_1, p_2) = found_line
         else:
             # Forget point - because it was an edge case.
             continue
 
         # Remap y-coordinate system because y-axis direction is opposite in
         # numpy arrays and the geometric lib.
-        p1.y = - p1.y
-        p2.y = - p2.y
+        p_1.y = - p_1.y
+        p_2.y = - p_2.y
 
-        (p1, p2) = (p1.as_PointInt(), p2.as_PointInt())
-        yy, xx = line(int(p1.y), int(p1.x), int(p2.y), int(p2.x))
+        (p_1, p_2) = (p_1.as_PointInt(), p_2.as_PointInt())
+        yy_selector, xx_selector = line(int(p_1.y), int(p_1.x), int(p_2.y), int(p_2.x))
 
-        mean_line_intensity = np.mean(image[yy, xx])
+        mean_line_intensity = np.mean(image[yy_selector, xx_selector])
 
         # DEBUG: Check if lines are correctly drawn through random point.
         if debug_image is not None:
             print("point pos: ", selected_point)
             print("angle: ", angle/np.pi*180)
-            print(p1, p2)
-            debug_image[yy, xx] = [0, 0, 0]
+            print(p_1, p_2)
+            debug_image[yy_selector, xx_selector] = [0, 0, 0]
 
-            print("j {}, angle {}, direction {}, selected_point {}, best_mean_value {}".format(
-                j, angle, direction, selected_point, best_mean_value))
+            print(f"j {j}, angle {angle}, direction {direction}, \
+                selected_point {selected_point}, best_mean_value {best_mean_value}")
 
         if draw_type == DrawType.ADDITIVE:
             if best_mean_value < mean_line_intensity:
-                best_line = (p1, p2)
+                best_line = (p_1, p_2)
                 best_mean_value = mean_line_intensity
         else:
             if best_mean_value > mean_line_intensity:
-                best_line = (p1, p2)
+                best_line = (p_1, p_2)
                 best_mean_value = mean_line_intensity
 
     return best_line, best_mean_value
 
-def print_input_params(args):
+def print_input_params(args_):
+    """Prints input parameters to command line based on given arguments
+
+    Args:
+        args_ : command line prepared by argparse
+    """
     print("\n----------------------------------------------\n")
     print("-- Input parameters --")
-    print("draw_type=: ", args.draw_type)
-    print("input_path: ", args.input_path)
-    print("output_path: ", args.output_path)
-    print("output_format: ", args.output_format)
-    print("num_lines: ", args.num_lines)
-    print("num_lines_to_check: ", args.num_lines_to_check)
+    print("draw_type=: ", args_.draw_type)
+    print("input_path: ", args_.input_path)
+    print("output_path: ", args_.output_path)
+    print("output_format: ", args_.output_format)
+    print("num_lines: ", args_.num_lines)
+    print("num_lines_to_check: ", args_.num_lines_to_check)
     print("\n----------------------------------------------\n")
 
 
-def main(args):
+def main(args_):
+    """Encapsulated main function
+    """
     print(LOGO)
-    print_input_params(args)
+    print_input_params(args_)
 
     # Initialize random-seed of numpy framework to always get the same output
     # if no_random_result is set.
-    if args.no_random_result == True:
+    if args_.no_random_result:
         np.random.seed(42)
         print("No random result setting activated.")
 
-    # Prepare draw_type enum to remove string comparisson.
-    if str.upper(args.draw_type) == 'ADDITIVE':
+    # Prepare draw_type enum to remove string comparison.
+    draw_type = None
+    if str.upper(args_.draw_type) == 'ADDITIVE':
         draw_type = DrawType['ADDITIVE']
-    elif str.upper(args.draw_type) == 'SUBTRACTIVE':
+    elif str.upper(args_.draw_type) == 'SUBTRACTIVE':
         draw_type = DrawType['SUBTRACTIVE']
     else:
-        print("Error: draw_type <{}> not supported".format(args.draw_type))
+        print(f"Error: draw_type <{args_.draw_type}> not supported")
         sys.exit()
 
     print('Load and preprocess image...')
-    img = Image.open(args.input_path)
+    img = Image.open(args_.input_path)
 
     # Resize if wanted.
-    if args.output_width > 0:
-        basewidth = args.output_width
-        wpercent = (basewidth/float(img.size[0]))
+    if args_.output_width > 0:
+        basewidth = args_.output_width
+        wpercent = basewidth/float(img.size[0])
         hsize = int((float(img.size[1])*float(wpercent)))
         img = img.resize((basewidth, hsize), Image.Resampling.BICUBIC)
 
@@ -278,24 +296,23 @@ def main(args):
     img_arr = img_arr.astype(np.int16)
 
     lines = compute_image_lines(
-        img_arr, args.num_lines, args.num_lines_to_check, draw_type, args.line_heaviness)
-    
-    if args.output_format == 'SVG':
+        img_arr, args_.num_lines, args_.num_lines_to_check, draw_type, args_.line_heaviness)
 
+    if args_.output_format == 'SVG':
         svg_width = img.width
         svg_height = img.height
 
         output_svg = draw_line_svg(
-            lines, svg_width, svg_height, draw_type, args.stroke_width)
-        print('Write SVG to {}'.format(args.output_path))
-        output_svg.saveSvg(args.output_path)
+            lines, svg_width, svg_height, draw_type, args_.stroke_width)
+        print(f'Write SVG to {args_.output_path}')
+        output_svg.save_svg(args_.output_path)
     else:
         output_image_arr = draw_line_image(
-            lines, img_arr.shape, draw_type, args.line_heaviness)
+            lines, img_arr.shape, draw_type, args_.line_heaviness)
         # Write image to output
-        print('Write image to {}'.format(args.output_path))
+        print(f'Write image to {args_.output_path}')
         output_image = Image.fromarray(output_image_arr)
-        output_image.save(args.output_path)
+        output_image.save(args_.output_path)
 
 
 if __name__ == "__main__":
@@ -309,15 +326,19 @@ if __name__ == "__main__":
     parser.add_argument('--num-lines', type=int, default=10000,
                         help='Number of lines to draw.')
     parser.add_argument('--line-heaviness', type=int, default=10,
-                        help='Line heaviness. Integer from 1 to 255, with 255 being completely heavy.')
+                        help='Line heaviness.  \
+                        Integer from 1 to 255, with 255 being completely heavy.')
     parser.add_argument('--num-lines-to-check', type=int, default=10,
                         help='Number of lines to check at each iteration.')
     parser.add_argument('--draw-type', type=str, default='subtractive',
-                        help='Draw types (subtractive/additive). Subtractive means white background with black lines. Additive means black background with white lines.')
+                        help='Draw types (subtractive/additive). \
+                            Subtractive means white background with black lines. \
+                            Additive means black background with white lines.')
     parser.add_argument('--no-random-result', action='store_true',
                         help='Will return always the same output with the same config if set.')
     parser.add_argument('--output-width', type=int, default=512,
-                        help='Output image width in pixels where hight will be adapted. Smaller width reduses computation time. "-1" will not change the size.')
+                        help='Output image width in pixels where hight will be adapted. \
+                            Smaller width reduces computation time. "-1" will not change the size.')
     parser.add_argument('--output-format', type=str.upper, default='PNG', choices=['PNG', 'SVG'],
                         help='Output image format - SVG or PNG')
     parser.add_argument('--stroke-width', type=float, default=0.1,
