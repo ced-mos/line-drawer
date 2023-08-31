@@ -88,7 +88,7 @@ virtualenv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
 
-python src/line_drawer.py --input-path ./example/mani_matter --output-path ./out_image.png --num-lines 10000   
+python src/line_drawer.py --input-path ./example/mani_matter.png --output-path ./out_image.png --num-lines 10000   
 ```
 
 ## Unit tests
