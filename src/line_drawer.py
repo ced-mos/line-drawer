@@ -6,6 +6,7 @@ from PIL import Image
 import numpy as np
 from skimage.draw import line
 from tqdm import tqdm
+import drawSvg as draw
 
 from geometry import Point, Line, Rectangle
 
@@ -53,6 +54,45 @@ def draw_line_image(lines, image_shape, draw_type, line_heaviness=10):
     output_image = output_image.astype(np.uint8)
     return output_image
 
+def draw_line_svg(lines, width, height, draw_type, stroke_width=0.1):
+    """Draw lines into SVG drawing given a list of lines.
+
+    Parameters
+    ----------
+        lines (list): List of point pairs
+        width (int): Width of SVG document
+        heigh (int): Height of SVG document
+        draw_type (DrawType): Enum for draw type
+        stroke_width (float, optional): Stroke width of lines. Defaults to 0.1
+
+    Returns
+    -------
+        svg_drawing: Output SVG as drawSvg Drawing.
+    """
+
+    if draw_type == DrawType.ADDITIVE:
+        stroke_color = 'white'
+        background = 'black'
+    else:
+        stroke_color = 'black'
+        background = 'white'
+
+    svg_drawing = draw.Drawing(width, height, origin=(0, -height),
+                displayInline=False,
+                stroke=stroke_color,
+                stroke_width=stroke_width)
+
+    if draw_type == DrawType.ADDITIVE:
+        svg_drawing.append(draw.Rectangle(0, -height, width, height,
+            stroke='none',
+            fill=background))
+
+    for line_ in lines:
+        p1, p2 = line_
+
+        svg_drawing.append(draw.Line(p1.x, p1.y*-1, p2.x, p2.y*-1))
+
+    return svg_drawing
 
 def compute_image_lines(image, num_lines, num_lines_to_check, draw_type, line_heaviness=10):
     """Computes lines needed to redraw line image.
@@ -196,6 +236,7 @@ def print_input_params(args):
     print("draw_type=: ", args.draw_type)
     print("input_path: ", args.input_path)
     print("output_path: ", args.output_path)
+    print("output_format: ", args.output_format)
     print("num_lines: ", args.num_lines)
     print("num_lines_to_check: ", args.num_lines_to_check)
     print("\n----------------------------------------------\n")
@@ -231,20 +272,30 @@ def main(args):
         img = img.resize((basewidth, hsize), Image.ANTIALIAS)
 
     # grayscale using CIE luminance (Copied from http://linify.me)
-    img_arr = np.asarray(img, dtype=np.float)
+    img_arr = np.asarray(img, dtype=float)
     img_arr = 0.21 * img_arr[:, :, 0] + 0.72 * \
         img_arr[:, :, 1] + 0.07 * img_arr[:, :, 2]
     img_arr = img_arr.astype(np.int16)
 
     lines = compute_image_lines(
         img_arr, args.num_lines, args.num_lines_to_check, draw_type, args.line_heaviness)
-    output_image_arr = draw_line_image(
-        lines, img_arr.shape, draw_type, args.line_heaviness)
+    
+    if args.output_format == 'SVG':
 
-    # Write image to output
-    print('Write image to {}'.format(args.output_path))
-    output_image = Image.fromarray(output_image_arr)
-    output_image.save(args.output_path)
+        svg_width = img.width
+        svg_height = img.height
+
+        output_svg = draw_line_svg(
+            lines, svg_width, svg_height, draw_type, args.stroke_width)
+        print('Write SVG to {}'.format(args.output_path))
+        output_svg.saveSvg(args.output_path)
+    else:
+        output_image_arr = draw_line_image(
+            lines, img_arr.shape, draw_type, args.line_heaviness)
+        # Write image to output
+        print('Write image to {}'.format(args.output_path))
+        output_image = Image.fromarray(output_image_arr)
+        output_image.save(args.output_path)
 
 
 if __name__ == "__main__":
@@ -262,11 +313,15 @@ if __name__ == "__main__":
     parser.add_argument('--num-lines-to-check', type=int, default=10,
                         help='Number of lines to check at each iteration.')
     parser.add_argument('--draw-type', type=str, default='subtractive',
-                        help='Draw types (subtractive/additive). Subtractive means white background with black lines. Additive means black background with with lines.')
+                        help='Draw types (subtractive/additive). Subtractive means white background with black lines. Additive means black background with white lines.')
     parser.add_argument('--no-random-result', action='store_true',
                         help='Will return always the same output with the same config if set.')
     parser.add_argument('--output-width', type=int, default=512,
                         help='Output image width in pixels where hight will be adapted. Smaller width reduses computation time. "-1" will not change the size.')
+    parser.add_argument('--output-format', type=str.upper, default='PNG', choices=['PNG', 'SVG'],
+                        help='Output image format - SVG or PNG')
+    parser.add_argument('--stroke-width', type=float, default=0.1,
+                        help='SVG stroke width')
 
     args = parser.parse_args()
 
