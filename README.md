@@ -49,7 +49,7 @@ In the table below you can see the demo image which has been drawn with 10000 li
     </tr>
     <tr>
         <td>--output-width</td>
-        <td>Output image width in pixels where hight will be adapted. Smaller width reduses computation time. "-1" will not change the size.</td>
+        <td>Output image width in pixels where height will be adapted. Smaller width reduces computation time. "-1" will not change the size.</td>
     </tr>
 </table>
 
