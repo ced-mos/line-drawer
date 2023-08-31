@@ -6,7 +6,7 @@ from PIL import Image
 import numpy as np
 from skimage.draw import line
 from tqdm import tqdm
-import drawSvg as draw
+import drawsvg as draw
 
 from geometry import Point, Line, Rectangle
 
@@ -269,7 +269,7 @@ def main(args):
         basewidth = args.output_width
         wpercent = (basewidth/float(img.size[0]))
         hsize = int((float(img.size[1])*float(wpercent)))
-        img = img.resize((basewidth, hsize), Image.ANTIALIAS)
+        img = img.resize((basewidth, hsize), Image.Resampling.BICUBIC)
 
     # grayscale using CIE luminance (Copied from http://linify.me)
     img_arr = np.asarray(img, dtype=float)
